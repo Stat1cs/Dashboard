@@ -1,0 +1,30 @@
+---
+description: Dashboard paths, workspace API, and shared lib usage
+globs: app/**/*.ts,app/**/*.tsx,lib/**/*.ts,components/**/*.tsx
+alwaysApply: false
+---
+
+# Project Conventions
+
+## Data paths
+
+- All app data lives under the **`Dashboard/`** prefix (relative to workspace root). Do not use `mission-control/` in new code.
+- Use these constants/paths: `Dashboard/habits.json`, `Dashboard/TASKS.md`, `Dashboard/goals.json`, `Dashboard/calendar.json`, `Dashboard/focus.txt`, `Dashboard/trades.json`, `Dashboard/trade-journal.md`, `Dashboard/canvas.json`. Journal: `memory/YYYY-MM-DD.md`.
+
+## Workspace
+
+- Workspace root: `DASHBOARD_WORKSPACE` or `OPENCLAW_WORKSPACE` or default `~/.openclaw/workspace`. Path validation and I/O via `lib/workspace.ts`; use `/api/workspace` for list/read/write/delete/move.
+
+## Shared logic
+
+- **Tasks**: Use `lib/tasks.ts` — `TASKS_PATH`, `parseTasksMd`, `serializeTasksMd`, `buildTaskLine`, `parseTaskMeta`, `taskTitle`, `isTaskDone`, `tasksForGoal`, `goalProgress`, etc.
+- **Goals**: Use `lib/goals.ts` — `GOAL_COLOR_PALETTE`, `goalBorderClass`, `goalCardClass`, `goalPillClass`, `goalEventClass` for consistent colors and styles.
+
+## Frontend
+
+- **Recent docs**: localStorage key **`dashboard-recent-docs`** (array of paths). Used by Documents and Quick Open.
+- **File-tree drag/drop**: MIME type **`application/x-dashboard-path`** for path data.
+
+## Chat API
+
+- Chat route sends `user: "dashboard"` to OpenClaw Gateway; do not reintroduce `mission-control-dashboard` or similar.
