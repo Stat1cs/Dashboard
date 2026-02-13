@@ -138,7 +138,7 @@ function DocumentsContent() {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error || res.statusText);
         }
-        if (currentPath === path) {
+        if (currentPath === path || (currentPath && (currentPath.startsWith(path + "/") || currentPath.startsWith(path + "\\")))) {
           setCurrentPath(null);
           setContent("");
           setMtime(0);
@@ -149,6 +149,13 @@ function DocumentsContent() {
       }
     },
     [currentPath, loadRoot]
+  );
+
+  const handleDeletePath = useCallback(
+    (path: string, _isDirectory: boolean) => {
+      handleDeleteFile(path);
+    },
+    [handleDeleteFile]
   );
 
   const handleMove = useCallback(
@@ -283,6 +290,7 @@ function DocumentsContent() {
                 setLoadedDirs((prev) => new Set(prev).add(path))
               }
               onMove={handleMove}
+              onDelete={handleDeletePath}
             />
           )}
           </div>

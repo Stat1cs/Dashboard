@@ -139,7 +139,7 @@ export default function JournalPage() {
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : (
           <div className="flex flex-col gap-1 overflow-auto">
-            {entries.map(({ path, name }) => {
+            {entries.map(({ path }) => {
               const isToday = path === today;
               return (
                 <Card

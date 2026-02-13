@@ -13,6 +13,10 @@ import {
   TargetIcon,
   TrendingUpIcon,
   MessageSquareIcon,
+  FlaskConicalIcon,
+  MegaphoneIcon,
+  UsersIcon,
+  BarChart3Icon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +30,10 @@ const nav = [
   { href: "/habits", label: "Habits", icon: ActivityIcon },
   { href: "/trading", label: "Trading", icon: TrendingUpIcon },
   { href: "/playground", label: "Playground", icon: LayoutGridIcon },
+  { href: "/research", label: "Research", icon: FlaskConicalIcon },
+  { href: "/social-media", label: "Social Media", icon: MegaphoneIcon },
+  { href: "/creator-ops", label: "Creator Ops", icon: UsersIcon },
+  { href: "/business-intelligence", label: "BI", icon: BarChart3Icon },
   { href: "/chat", label: "Chat", icon: MessageSquareIcon },
 ];
 

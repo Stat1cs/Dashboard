@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,10 @@ const PAGES = [
   { href: "/tasks", label: "Tasks" },
   { href: "/goals", label: "Goals" },
   { href: "/trading", label: "Trading" },
+  { href: "/research", label: "Research" },
+  { href: "/social-media", label: "Social Media" },
+  { href: "/creator-ops", label: "Creator Ops" },
+  { href: "/business-intelligence", label: "Business Intelligence" },
   { href: "/chat", label: "Chat" },
 ];
 
@@ -23,29 +27,26 @@ export function QuickOpen() {
   const [selected, setSelected] = useState(0);
   const router = useRouter();
 
-  const [recentDocs, setRecentDocs] = useState<string[]>([]);
-  useEffect(() => {
+  const recentDocs = useMemo(() => {
+    if (!open) return [];
     try {
       const raw = localStorage.getItem("dashboard-recent-docs");
-      if (raw) setRecentDocs(JSON.parse(raw));
+      return raw ? JSON.parse(raw) : [];
     } catch {
-      // ignore
+      return [];
     }
   }, [open]);
 
-  const items = [
-    ...PAGES.filter((p) => !query || p.label.toLowerCase().includes(query.toLowerCase())).map((p) => ({ type: "page" as const, href: p.href, label: p.label })),
-    ...recentDocs.filter((d) => !query || d.toLowerCase().includes(query.toLowerCase())).map((path) => ({ type: "doc" as const, href: `/documents?open=${encodeURIComponent(path)}`, label: path })),
-  ];
-  const selectedItem = items[selected];
+  const items = useMemo(
+    () => [
+      ...PAGES.filter((p) => !query || p.label.toLowerCase().includes(query.toLowerCase())).map((p) => ({ type: "page" as const, href: p.href, label: p.label })),
+      ...recentDocs.filter((d: string) => !query || d.toLowerCase().includes(query.toLowerCase())).map((path: string) => ({ type: "doc" as const, href: `/documents?open=${encodeURIComponent(path)}`, label: path })),
+    ],
+    [query, recentDocs]
+  );
 
-  useEffect(() => {
-    setSelected(0);
-  }, [query]);
-
-  useEffect(() => {
-    if (selected >= items.length) setSelected(Math.max(0, items.length - 1));
-  }, [items.length, selected]);
+  const effectiveSelected = items.length === 0 ? 0 : Math.min(selected, items.length - 1);
+  const selectedItem = items[effectiveSelected];
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -68,12 +69,22 @@ export function QuickOpen() {
     [open, items.length, selectedItem, router]
   );
 
+  const setQueryAndResetSelection = useCallback((value: string) => {
+    setQuery(value);
+    setSelected(0);
+  }, []);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
-        setOpen((o) => !o);
-        setQuery("");
+        setOpen((o) => {
+          if (!o) {
+            setQuery("");
+            setSelected(0);
+          }
+          return !o;
+        });
       }
     };
     window.addEventListener("keydown", onKey);
@@ -95,7 +106,7 @@ export function QuickOpen() {
           type="text"
           placeholder="Go to page or document…"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => setQueryAndResetSelection(e.target.value)}
           onKeyDown={handleKeyDown}
           autoFocus
           className="w-full rounded-t-lg border-0 border-b border-border bg-transparent px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-0"
@@ -110,7 +121,7 @@ export function QuickOpen() {
                 type="button"
                 className={cn(
                   "flex w-full items-center gap-2 px-4 py-2 text-left text-sm",
-                  i === selected ? "bg-accent text-accent-foreground" : "hover:bg-muted/50"
+                  i === effectiveSelected ? "bg-accent text-accent-foreground" : "hover:bg-muted/50"
                 )}
                 onClick={() => {
                   router.push(item.href);

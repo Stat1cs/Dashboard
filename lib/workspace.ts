@@ -1,4 +1,4 @@
-import { readdir, readFile, writeFile, stat, mkdir, unlink, rename } from "node:fs/promises";
+import { readdir, readFile, writeFile, stat, mkdir, unlink, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 
@@ -122,6 +122,24 @@ export async function deleteFile(
   const st = await stat(abs);
   if (st.isDirectory()) throw new Error("Cannot delete directory");
   await unlink(abs);
+}
+
+/**
+ * Delete a file or directory. Path relative to workspace root.
+ * Directories are deleted recursively.
+ */
+export async function deletePath(
+  relativePath: string,
+  root: string
+): Promise<void> {
+  const abs = resolvePath(relativePath, root);
+  if (!abs) throw new Error("Invalid path");
+  const st = await stat(abs);
+  if (st.isDirectory()) {
+    await rm(abs, { recursive: true });
+  } else {
+    await unlink(abs);
+  }
 }
 
 /**

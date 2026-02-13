@@ -52,22 +52,6 @@ function parseHabitsData(content: string): HabitsData {
   }
 }
 
-function streakFor(logs: Log[], habitId: string): number {
-  const sorted = [...new Set(logs.filter((l) => l.habitId === habitId).map((l) => l.date))].sort().reverse();
-  if (sorted.length === 0) return 0;
-  const today = todayStr();
-  if (sorted[0] !== today) return 0;
-  let count = 1;
-  for (let i = 1; i < sorted.length; i++) {
-    const prevDay = new Date(sorted[i - 1]);
-    prevDay.setDate(prevDay.getDate() - 1);
-    const expected = prevDay.toISOString().slice(0, 10);
-    if (sorted[i] !== expected) break;
-    count++;
-  }
-  return count;
-}
-
 function isLoggedToday(logs: Log[], habitId: string): boolean {
   return logs.some((l) => l.habitId === habitId && l.date === todayStr());
 }

@@ -5,7 +5,7 @@ import {
   listDir,
   readFileContent,
   writeFileContent,
-  deleteFile,
+  deletePath,
   movePath,
 } from "@/lib/workspace";
 
@@ -93,7 +93,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    await deleteFile(pathParam, root);
+    await deletePath(pathParam, root);
     return NextResponse.json({ ok: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";

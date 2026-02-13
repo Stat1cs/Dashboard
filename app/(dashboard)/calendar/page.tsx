@@ -22,7 +22,6 @@ import {
   taskTitle,
   parseTaskMeta,
   isTaskDone,
-  type TaskSection,
 } from "@/lib/tasks";
 import { GOAL_COLOR_PALETTE, goalEventClass } from "@/lib/goals";
 
@@ -89,7 +88,7 @@ export default function CalendarPage() {
   const [date, setDate] = useState(() => new Date());
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [goalsMap, setGoalsMap] = useState<Record<string, GoalInfo>>({});
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDate, setNewDate] = useState(() => new Date().toISOString().slice(0, 10));

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { FolderIcon, FolderOpenIcon, FileTextIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react";
+import { FolderIcon, FolderOpenIcon, FileTextIcon, ChevronRightIcon, ChevronDownIcon, Trash2Icon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type DirEntry = {
@@ -21,6 +21,7 @@ type FileTreeProps = {
   loadedDirs: Set<string>;
   loadDir: (path: string) => void;
   onMove?: (fromPath: string, toPath: string) => Promise<void>;
+  onDelete?: (path: string, isDirectory: boolean) => void;
 };
 
 function basename(p: string): string {
@@ -37,6 +38,7 @@ function TreeDir({
   loadDir,
   level,
   onMove,
+  onDelete,
 }: {
   entry: DirEntry;
   currentPath: string;
@@ -46,6 +48,7 @@ function TreeDir({
   loadDir: (path: string) => void;
   level: number;
   onMove?: (fromPath: string, toPath: string) => Promise<void>;
+  onDelete?: (path: string, isDirectory: boolean) => void;
 }) {
   const [open, setOpen] = useState(loadedDirs.has(entry.path));
   const [children, setChildren] = useState<DirEntry[]>([]);
@@ -100,11 +103,20 @@ function TreeDir({
     [entry.path, onMove]
   );
 
+  const handleDeleteClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!onDelete) return;
+      const msg = `Delete folder "${entry.name}" and all its contents? This cannot be undone.`;
+      if (typeof window !== "undefined" && !window.confirm(msg)) return;
+      onDelete(entry.path, true);
+    },
+    [entry.name, entry.path, onDelete]
+  );
+
   return (
-    <div className="select-none">
-      <button
-        type="button"
-        onClick={toggle}
+    <div className="select-none group/folder">
+      <div
         draggable={!!onMove}
         onDragStart={onMove ? handleDragStart : undefined}
         onDragOver={onMove ? handleDragOver : undefined}
@@ -113,22 +125,39 @@ function TreeDir({
         className={cn(
           "flex w-full items-center gap-1 rounded-md px-1 py-1 text-left text-sm hover:bg-muted",
           dropTarget && "ring-1 ring-primary bg-primary/10",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          "focus-within:ring-2 focus-within:ring-ring focus-within:outline-none"
         )}
         style={{ paddingLeft: 8 + level * 12 }}
       >
-        {open ? (
-          <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
-        ) : (
-          <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
+        <button
+          type="button"
+          onClick={toggle}
+          className="flex flex-1 min-w-0 items-center gap-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {open ? (
+            <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+          ) : (
+            <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
+          )}
+          {open ? (
+            <FolderOpenIcon className="size-4 shrink-0 text-amber-500/90" />
+          ) : (
+            <FolderIcon className="size-4 shrink-0 text-amber-500/90" />
+          )}
+          <span className="truncate">{entry.name}</span>
+        </button>
+        {onDelete && (
+          <button
+            type="button"
+            onClick={handleDeleteClick}
+            className="shrink-0 rounded p-0.5 opacity-0 group-hover/folder:opacity-100 hover:bg-destructive/20 text-destructive hover:text-destructive focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring pointer-events-none group-hover/folder:pointer-events-auto"
+            title="Delete folder"
+            aria-label="Delete folder"
+          >
+            <Trash2Icon className="size-3.5" />
+          </button>
         )}
-        {open ? (
-          <FolderOpenIcon className="size-4 shrink-0 text-amber-500/90" />
-        ) : (
-          <FolderIcon className="size-4 shrink-0 text-amber-500/90" />
-        )}
-        <span className="truncate">{entry.name}</span>
-      </button>
+      </div>
       {open && children.length > 0 && (
         <div>
           {children.map((child) =>
@@ -143,6 +172,7 @@ function TreeDir({
                 loadDir={loadDir}
                 level={level + 1}
                 onMove={onMove}
+                onDelete={onDelete}
               />
             ) : (
               <FileRow
@@ -214,6 +244,7 @@ export function FileTree({
   loadedDirs,
   loadDir,
   onMove,
+  onDelete,
 }: FileTreeProps) {
   const [rootDrop, setRootDrop] = useState(false);
   const handleRootDragOver = useCallback(
@@ -257,6 +288,7 @@ export function FileTree({
             loadDir={loadDir}
             level={0}
             onMove={onMove}
+            onDelete={onDelete}
           />
         ) : (
           <FileRow

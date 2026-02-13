@@ -20,7 +20,7 @@ import {
 } from "@/lib/tasks";
 import { ListTodoIcon, FileTextIcon, PlusIcon, CircleIcon, CheckCircle2Icon, PencilIcon, Trash2Icon, LayoutGridIcon, TargetIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { GOAL_COLOR_PALETTE, goalBorderClass, goalCardClass, goalPillClass } from "@/lib/goals";
+import { GOAL_COLOR_PALETTE, goalBorderClass, goalPillClass } from "@/lib/goals";
 
 const CALENDAR_PATH = "Dashboard/calendar.json";
 const GOALS_PATH = "Dashboard/goals.json";
@@ -53,7 +53,6 @@ type GoalBrief = { id: string; name: string; color?: string };
 function TaskCard({
   t,
   sectionKey,
-  style,
   goalsList,
   goalColor,
   isEditing,
@@ -231,7 +230,10 @@ function TasksContent() {
   }, [goalFromUrl]);
 
   const addTask = useCallback(
-    async (section: TaskSection) => {
+    async (
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- section required by addTask signature
+      _section: TaskSection
+    ) => {
       const trimmed = newTaskTitle.trim();
       if (!trimmed) return;
       const due = newTaskDueDate.trim() || undefined;
@@ -571,7 +573,7 @@ function TasksContent() {
                       key={`${t.section}-${t.index}`}
                       t={t}
                       sectionKey={t.section}
-                      style={col.id ? { card: goalCardClass(goalsList.find((g) => g.id === col.id)?.color) } : COLUMN_STYLES["Not Started"]}
+                      style={COLUMN_STYLES[t.section]}
                       goalsList={goalsList}
                       goalColor={t.goalId ? goalsList.find((g) => g.id === t.goalId)?.color : undefined}
                       isEditing={editingTask?.section === t.section && editingTask?.index === t.index}

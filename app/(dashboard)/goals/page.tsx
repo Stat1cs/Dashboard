@@ -20,8 +20,6 @@ import {
 import {
   TargetIcon,
   PlusIcon,
-  FileTextIcon,
-  ListTodoIcon,
   CalendarIcon,
   BookOpenIcon,
   MessageSquareIcon,
@@ -31,15 +29,10 @@ import {
   ChevronRightIcon,
   CheckCircle2Icon,
   CircleIcon,
-  PencilIcon,
   Trash2Icon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GOAL_COLOR_PALETTE } from "@/lib/goals";
-
-function goalColorFallback(goal: Goal, index: number): string {
-  return goal.color ?? GOAL_COLOR_PALETTE[index % GOAL_COLOR_PALETTE.length];
-}
 
 const GOALS_PATH = "Dashboard/goals.json";
 const CALENDAR_PATH = "Dashboard/calendar.json";
@@ -169,7 +162,7 @@ export default function GoalsPage() {
       setPanelGoalName(selectedGoal.name);
       setPanelGoalTargetDate(selectedGoal.targetDate ?? "");
     }
-  }, [selectedGoal?.id, selectedGoal?.name, selectedGoal?.targetDate]);
+  }, [selectedGoal]);
 
   const updateGoal = useCallback(
     (goalId: string, updates: { name?: string; targetDate?: string }) => {
